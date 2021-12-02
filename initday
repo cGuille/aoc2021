@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -eu
+
+ROOT=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
+
+DAY_NUMBER=$1
+
+if ! [[ "$DAY_NUMBER" =~ ^[0-9]+$ ]]; then
+    echo "invalid day number"
+    exit 1
+fi
+
+DAY_DIR="${ROOT}/src/bin/day${DAY_NUMBER}"
+
+if [[ -e $DAY_DIR ]]; then
+    echo "already exists"
+    exit 1
+fi
+
+mkdir "$DAY_DIR"
+echo >> "$DAY_DIR/input.txt"
+
+cat > "$DAY_DIR/main.rs" <<'MAIN'
+fn main() {
+    let input = include_str!("input.txt");
+
+    println!("{}", input);
+}
+
+#[cfg(test)]
+mod day1_tests {
+    use super::*;
+
+    const EXAMPLE: &str = "\
+
+";
+
+    #[test]
+    fn part1_example() {
+    }
+}
+MAIN
