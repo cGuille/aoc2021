@@ -38,7 +38,7 @@ fn part2(measures_input: &str) -> u32 {
 }
 
 #[cfg(test)]
-mod day1_tests {
+mod tests {
     use super::*;
 
     const EXAMPLE_MEASURES: &str = "\
