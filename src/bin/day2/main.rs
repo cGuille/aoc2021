@@ -9,23 +9,24 @@ fn main() {
     let input = include_str!("input.txt");
 
     println!("{}", part1(input));
+    println!("{}", part2(input));
 }
 
 fn part1(input_commands: &str) -> i32 {
-    let mut sub = Submarine::default();
+    part(input_commands, Box::new(SubmarinePart1::default()))
+}
 
+fn part2(input_commands: &str) -> i32 {
+    part(input_commands, Box::new(SubmarinePart2::default()))
+}
+
+fn part(input_commands: &str, mut sub: Box<dyn Submarine>) -> i32 {
     sub.follow_course(input_commands);
 
-    sub.hpos * sub.depth
+    sub.hpos() * sub.depth()
 }
 
-#[derive(Debug, Default)]
-struct Submarine {
-    hpos: i32,
-    depth: i32,
-}
-
-impl Submarine {
+trait Submarine {
     fn follow_course(&mut self, course: &str) {
         course
             .lines()
@@ -34,12 +35,60 @@ impl Submarine {
         ;
     }
 
+    fn command(&mut self, command: &SubmarineCommand);
+    fn hpos(&self) -> i32;
+    fn depth(&self) -> i32;
+}
+
+#[derive(Debug, Default)]
+struct SubmarinePart1 {
+    hpos: i32,
+    depth: i32,
+}
+
+impl Submarine for SubmarinePart1 {
     fn command(&mut self, command: &SubmarineCommand) {
         match command {
-            SubmarineCommand::Forward(n) => self.hpos += n,
             SubmarineCommand::Up(n) => self.depth -= n,
             SubmarineCommand::Down(n) => self.depth += n,
+            SubmarineCommand::Forward(n) => self.hpos += n,
         };
+    }
+
+    fn hpos(&self) -> i32 {
+        self.hpos
+    }
+
+    fn depth(&self) -> i32 {
+        self.depth
+    }
+}
+
+#[derive(Debug, Default)]
+struct SubmarinePart2 {
+    aim: i32,
+    hpos: i32,
+    depth: i32,
+}
+
+impl Submarine for SubmarinePart2 {
+    fn command(&mut self, command: &SubmarineCommand) {
+        match command {
+            SubmarineCommand::Up(n) => self.aim -= n,
+            SubmarineCommand::Down(n) => self.aim += n,
+            SubmarineCommand::Forward(n) => {
+                self.hpos += n;
+                self.depth += self.aim * n;
+            },
+        };
+    }
+
+    fn hpos(&self) -> i32 {
+        self.hpos
+    }
+
+    fn depth(&self) -> i32 {
+        self.depth
     }
 }
 
@@ -110,8 +159,8 @@ forward 2
     }
 
     #[test]
-    fn sub_commanding() {
-        let mut sub = Submarine::default();
+    fn sub_commanding_part1() {
+        let mut sub = SubmarinePart1::default();
 
         sub.command(&SubmarineCommand::Down(10));
         assert_eq!(0, sub.hpos);
@@ -137,5 +186,10 @@ forward 2
     #[test]
     fn part1_example() {
         assert_eq!(150, part1(EXAMPLE));
+    }
+
+    #[test]
+    fn part2_example() {
+        assert_eq!(900, part2(EXAMPLE));
     }
 }
