@@ -19,7 +19,7 @@ if [[ -e $DAY_DIR ]]; then
 fi
 
 mkdir "$DAY_DIR"
-echo >> "$DAY_DIR/input.txt"
+touch "$DAY_DIR/input.txt"
 
 cat > "$DAY_DIR/main.rs" <<'MAIN'
 fn main() {
