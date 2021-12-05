@@ -10,26 +10,16 @@ fn main() {
 }
 
 fn part1(input: &str) -> usize {
-    let mut points = HashMap::new();
-
-    input
-        .lines()
-        .map(|line| {
-            line.parse::<Segment>()
-                .expect(&format!("Invalid segment: {:?}", line))
-        })
-        .filter(|segment| segment.is_axial())
-        .for_each(|segment| {
-            segment.iter().for_each(|p| {
-                let count = points.entry(p).or_insert(0);
-                *count += 1;
-            })
-        });
-
-    points.iter().filter(|(_point, count)| count >= &&2).count()
+    part(input, |segment| segment.is_axial())
 }
 
 fn part2(input: &str) -> usize {
+    part(input, |_segment| true)
+}
+
+fn part<F>(input: &str, segments_filter: F) -> usize
+where F: Fn(&Segment) -> bool
+{
     let mut points = HashMap::new();
 
     input
@@ -38,6 +28,7 @@ fn part2(input: &str) -> usize {
             line.parse::<Segment>()
                 .expect(&format!("Invalid segment: {:?}", line))
         })
+        .filter(segments_filter)
         .for_each(|segment| {
             segment.iter().for_each(|p| {
                 let count = points.entry(p).or_insert(0);
