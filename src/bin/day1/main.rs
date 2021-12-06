@@ -12,11 +12,9 @@ fn part1(measures_input: &str) -> u32 {
         .collect::<Vec<i32>>()
         .as_slice()
         .windows(2)
-        .fold(0, |increase_count, window| {
-            match window {
-                [a, b] if a < b => increase_count + 1,
-                _ => increase_count
-            }
+        .fold(0, |increase_count, window| match window {
+            [a, b] if a < b => increase_count + 1,
+            _ => increase_count,
         })
 }
 
@@ -24,16 +22,16 @@ fn part2(measures_input: &str) -> u32 {
     measures_input
         .lines()
         .map(|line| line.parse::<i32>().expect("Could not parse line into i32"))
-        .collect::<Vec<i32>>().as_slice()
+        .collect::<Vec<i32>>()
+        .as_slice()
         .windows(3)
         .map(|window| window.iter().sum())
-        .collect::<Vec<i32>>().as_slice()
+        .collect::<Vec<i32>>()
+        .as_slice()
         .windows(2)
-        .fold(0, |increase_count, window| {
-            match window {
-                [a, b] if a < b => increase_count + 1,
-                _ => increase_count
-            }
+        .fold(0, |increase_count, window| match window {
+            [a, b] if a < b => increase_count + 1,
+            _ => increase_count,
         })
 }
 

@@ -31,8 +31,7 @@ trait Submarine {
         course
             .lines()
             .map(|line| line.parse().expect("Invalid command"))
-            .for_each(|command| self.command(&command))
-        ;
+            .for_each(|command| self.command(&command));
     }
 
     fn command(&mut self, command: &SubmarineCommand);
@@ -79,7 +78,7 @@ impl Submarine for SubmarinePart2 {
             SubmarineCommand::Forward(n) => {
                 self.hpos += n;
                 self.depth += self.aim * n;
-            },
+            }
         };
     }
 
@@ -150,12 +149,36 @@ forward 2
 
     #[test]
     fn parse_command() {
-        assert_eq!(Ok(SubmarineCommand::Up(10)), "up 10".parse(), "Up with positive amount");
-        assert_eq!(Ok(SubmarineCommand::Up(-10)), "up -10".parse(), "Up with negative amount");
-        assert_eq!(Ok(SubmarineCommand::Down(5)), "down 5".parse(), "Down with positive amount");
-        assert_eq!(Ok(SubmarineCommand::Forward(5)), "forward 5".parse(), "Forward with positive amount");
-        assert_eq!(Err(SubmarineCommandParseError::NoMatch), "not a command".parse::<SubmarineCommand>(), "String not matching");
-        assert_eq!(Err(SubmarineCommandParseError::UnknownCommand), "not_a_command 10".parse::<SubmarineCommand>(), "Invalid command");
+        assert_eq!(
+            Ok(SubmarineCommand::Up(10)),
+            "up 10".parse(),
+            "Up with positive amount"
+        );
+        assert_eq!(
+            Ok(SubmarineCommand::Up(-10)),
+            "up -10".parse(),
+            "Up with negative amount"
+        );
+        assert_eq!(
+            Ok(SubmarineCommand::Down(5)),
+            "down 5".parse(),
+            "Down with positive amount"
+        );
+        assert_eq!(
+            Ok(SubmarineCommand::Forward(5)),
+            "forward 5".parse(),
+            "Forward with positive amount"
+        );
+        assert_eq!(
+            Err(SubmarineCommandParseError::NoMatch),
+            "not a command".parse::<SubmarineCommand>(),
+            "String not matching"
+        );
+        assert_eq!(
+            Err(SubmarineCommandParseError::UnknownCommand),
+            "not_a_command 10".parse::<SubmarineCommand>(),
+            "Invalid command"
+        );
     }
 
     #[test]

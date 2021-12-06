@@ -18,7 +18,8 @@ fn part2(input: &str) -> usize {
 }
 
 fn part<F>(input: &str, segments_filter: F) -> usize
-where F: Fn(&Segment) -> bool
+where
+    F: Fn(&Segment) -> bool,
 {
     let mut points = HashMap::new();
 
