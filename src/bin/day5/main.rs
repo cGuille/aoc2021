@@ -27,7 +27,7 @@ where
         .lines()
         .map(|line| {
             line.parse::<Segment>()
-                .expect(&format!("Invalid segment: {:?}", line))
+                .unwrap_or_else(|_| panic!("Invalid segment: {:?}", line))
         })
         .filter(segments_filter)
         .for_each(|segment| {
@@ -50,7 +50,7 @@ impl Segment {
 
     fn iter(&self) -> SegmentIter {
         SegmentIter {
-            segment: &self,
+            segment: self,
             iter_count: 0,
             ended: false,
         }
