@@ -43,104 +43,54 @@ where F: Fn(&Segment) -> bool
 struct Segment(Point, Point);
 
 impl Segment {
-    fn iter(&self) -> SegmentIter {
-        SegmentIter {
-            started: false,
-            current: self.0,
-            x_delta: Delta::from(self.0.x, self.1.x),
-            y_delta: Delta::from(self.0.y, self.1.y),
-        }
-    }
-
     fn is_axial(&self) -> bool {
         self.0.x == self.1.x || self.0.y == self.1.y
     }
-}
 
-#[derive(Debug)]
-enum Delta {
-    Positive(u32),
-    Negative(u32),
-    None,
-}
-
-impl Delta {
-    fn from(start: u32, end: u32) -> Self {
-        if start == end {
-            Delta::None
-        } else if start < end {
-            Delta::Positive(end - start)
-        } else {
-            Delta::Negative(start - end)
-        }
-    }
-
-    fn decrease(&mut self) {
-        match self {
-            Self::Positive(ref mut n) if *n > 0 => *n -= 1,
-            Self::Negative(ref mut n) if *n > 0 => *n -= 1,
-            _ => (),
-        };
-    }
-
-    fn is_exhausted(&self) -> bool {
-        match self {
-            Self::None => true,
-            Self::Positive(0) => true,
-            Self::Negative(0) => true,
-            _ => false,
+    fn iter(&self) -> SegmentIter {
+        SegmentIter {
+            segment: &self,
+            iter_count: 0,
+            ended: false,
         }
     }
 }
 
 #[derive(Debug)]
-struct SegmentIter {
-    started: bool,
-    current: Point,
-    x_delta: Delta,
-    y_delta: Delta,
+struct SegmentIter<'a> {
+    segment: &'a Segment,
+    iter_count: i64,
+    ended: bool,
 }
 
-impl Iterator for SegmentIter {
+impl<'a> Iterator for SegmentIter<'a> {
     type Item = Point;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if !self.started {
-            self.started = true;
-
-            return Some(self.current);
-        }
-
-        if self.x_delta.is_exhausted() && self.y_delta.is_exhausted() {
+        if self.ended {
             return None;
         }
 
-        self.current = Point {
-            x: match self.x_delta {
-                Delta::Positive(_) => {
-                    self.x_delta.decrease();
-                    self.current.x + 1
-                }
-                Delta::Negative(_) => {
-                    self.x_delta.decrease();
-                    self.current.x - 1
-                }
-                Delta::None => self.current.x,
-            },
-            y: match self.y_delta {
-                Delta::Positive(_) => {
-                    self.y_delta.decrease();
-                    self.current.y + 1
-                }
-                Delta::Negative(_) => {
-                    self.y_delta.decrease();
-                    self.current.y - 1
-                }
-                Delta::None => self.current.y,
-            },
-        };
+        let x = iter_coord(self.iter_count, self.segment.0.x, self.segment.1.x);
+        let y = iter_coord(self.iter_count, self.segment.0.y, self.segment.1.y);
 
-        Some(self.current)
+        let current = Point { x, y };
+
+        self.iter_count += 1;
+
+        if current == self.segment.1 {
+            self.ended = true;
+        }
+
+        Some(current)
+    }
+}
+
+fn iter_coord(iter_count: i64, start: i64, end: i64) -> i64 {
+    if start <= end {
+        std::cmp::min(start + iter_count, end)
+    } else {
+        std::cmp::max(start - iter_count, end)
     }
 }
 
@@ -182,8 +132,8 @@ impl FromStr for Segment {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 struct Point {
-    x: u32,
-    y: u32,
+    x: i64,
+    y: i64,
 }
 
 #[derive(Debug, PartialEq)]
@@ -314,31 +264,5 @@ mod day1_tests {
         assert_eq!(it.next(), None);
 
         assert_eq!(segment.iter().count(), 5);
-    }
-
-    #[test]
-    fn test_delta() {
-        assert!(matches!(Delta::from(0, 3), Delta::Positive(3)));
-        assert!(matches!(Delta::from(5, 9), Delta::Positive(4)));
-        assert!(matches!(Delta::from(9, 5), Delta::Negative(4)));
-        assert!(matches!(Delta::from(5, 5), Delta::None));
-
-        assert!(Delta::None.is_exhausted());
-        assert!(Delta::Positive(0).is_exhausted());
-        assert!(Delta::Negative(0).is_exhausted());
-
-        assert!(!Delta::Positive(1).is_exhausted());
-        assert!(!Delta::Negative(1).is_exhausted());
-
-        let mut delta = Delta::Positive(2);
-        assert!(!delta.is_exhausted());
-
-        delta.decrease();
-        assert!(matches!(delta, Delta::Positive(1)));
-        assert!(!delta.is_exhausted());
-
-        delta.decrease();
-        assert!(matches!(delta, Delta::Positive(0)));
-        assert!(delta.is_exhausted());
     }
 }
