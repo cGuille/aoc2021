@@ -7,7 +7,11 @@ fn main() {
 }
 
 fn part1(input: &str) -> usize {
-    let mut fishes: Vec<Lanternfish> = input.trim().split(',').map(|s| s.parse().unwrap()).collect();
+    let mut fishes: Vec<Lanternfish> = input
+        .trim()
+        .split(',')
+        .map(|s| s.parse().unwrap())
+        .collect();
 
     for _ in 0..80 {
         let newborns: Vec<_> = fishes.iter_mut().flat_map(|fish| fish.next_day()).collect();
