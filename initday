@@ -25,7 +25,11 @@ cat > "$DAY_DIR/main.rs" <<'MAIN'
 fn main() {
     let input = include_str!("input.txt");
 
-    println!("{}", input);
+    println!("{}", part1(input));
+}
+
+fn part1(input: &str) -> i64 {
+    unimplemented!()
 }
 
 #[cfg(test)]
@@ -33,11 +37,12 @@ mod day1_tests {
     use super::*;
 
     const EXAMPLE: &str = "\
-
+TODO
 ";
 
     #[test]
     fn part1_example() {
+        assert_eq!(part1(EXAMPLE), TODO);
     }
 }
 MAIN
