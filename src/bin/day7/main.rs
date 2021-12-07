@@ -4,9 +4,21 @@ fn main() {
     let input = include_str!("input.txt");
 
     println!("{}", part1(input));
+    println!("{}", part2(input));
 }
 
 fn part1(input: &str) -> i64 {
+    part(input, |distance| distance)
+}
+
+fn part2(input: &str) -> i64 {
+    part(input, n_first_int_sum)
+}
+
+fn part<F>(input: &str, cost: F) -> i64
+where
+    F: Fn(i64) -> i64,
+{
     let positions: Vec<i64> = input
         .trim()
         .split(',')
@@ -23,10 +35,13 @@ fn part1(input: &str) -> i64 {
     let mut seen_in_delta_1 = HashSet::new();
 
     loop {
-        let cost: i64 = positions.iter().map(|pos| (selected - pos).abs()).sum();
+        let total_cost: i64 = positions
+            .iter()
+            .map(|pos| cost((selected - pos).abs()))
+            .sum();
 
         if let Some(previous_cost) = previous_cost {
-            if cost > previous_cost {
+            if total_cost > previous_cost {
                 delta *= -1; // reverse direction
 
                 if delta.abs() > 1 {
@@ -35,7 +50,7 @@ fn part1(input: &str) -> i64 {
             }
         }
 
-        previous_cost = Some(cost);
+        previous_cost = Some(total_cost);
         selected += delta;
 
         if delta.abs() == 1 {
@@ -46,7 +61,15 @@ fn part1(input: &str) -> i64 {
         }
     }
 
-    positions.iter().map(|pos| (pos - selected).abs()).sum()
+    positions
+        .iter()
+        .map(|pos| cost((pos - selected).abs()))
+        .sum()
+}
+
+/// Cf. https://fr.wikipedia.org/wiki/Somme_(arithm%C3%A9tique)#Somme_des_premiers_entiers
+fn n_first_int_sum(n: i64) -> i64 {
+    (n * (n + 1)) / 2
 }
 
 #[cfg(test)]
@@ -60,5 +83,23 @@ mod day1_tests {
     #[test]
     fn part1_example() {
         assert_eq!(part1(EXAMPLE), 37);
+    }
+
+    #[test]
+    fn part2_example() {
+        assert_eq!(part2(EXAMPLE), 168);
+    }
+
+    #[test]
+    fn test_n_first_int_sum() {
+        assert_eq!(n_first_int_sum(1), 1);
+        assert_eq!(n_first_int_sum(2), 3);
+        assert_eq!(n_first_int_sum(3), 6);
+        assert_eq!(n_first_int_sum(4), 10);
+        assert_eq!(n_first_int_sum(100), 5050);
+
+        assert_eq!(n_first_int_sum((16i64 - 5).abs()), 66);
+        assert_eq!(n_first_int_sum((1i64 - 5).abs()), 10);
+        assert_eq!(n_first_int_sum((14i64 - 5).abs()), 45);
     }
 }
