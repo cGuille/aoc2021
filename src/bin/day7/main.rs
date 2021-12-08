@@ -1,21 +1,62 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, time::Instant};
 
 fn main() {
     let input = include_str!("input.txt");
 
-    println!("{}", part1(input));
-    println!("{}", part2(input));
+    let start = Instant::now();
+    let part1_algo1_result = part1_algo1(input);
+    let part1_algo1_elapsed = start.elapsed();
+
+    let start = Instant::now();
+    let part2_algo1_result = part2_algo1(input);
+    let part2_algo1_elapsed = start.elapsed();
+
+    let start = Instant::now();
+    let part1_algo2_result = part1_algo2(input);
+    let part1_algo2_elapsed = start.elapsed();
+
+    let start = Instant::now();
+    let part2_algo2_result = part2_algo2(input);
+    let part2_algo2_elapsed = start.elapsed();
+
+    println!("Part 1:");
+    println!(
+        "\tAlgo 1: {} ({:?})",
+        part1_algo1_result, part1_algo1_elapsed
+    );
+    println!(
+        "\tAlgo 2: {} ({:?})",
+        part1_algo2_result, part1_algo2_elapsed
+    );
+    println!("");
+    println!("Part 2:");
+    println!(
+        "\tAlgo 1: {} ({:?})",
+        part2_algo1_result, part2_algo1_elapsed
+    );
+    println!(
+        "\tAlgo 2: {} ({:?})",
+        part2_algo2_result, part2_algo2_elapsed
+    );
 }
 
-fn part1(input: &str) -> i64 {
-    part(input, |distance| distance)
+fn part1_algo1(input: &str) -> i64 {
+    part_algo1(input, |distance| distance)
 }
 
-fn part2(input: &str) -> i64 {
-    part(input, n_first_int_sum)
+fn part2_algo1(input: &str) -> i64 {
+    part_algo1(input, n_first_int_sum)
 }
 
-fn part<F>(input: &str, cost: F) -> i64
+fn part1_algo2(input: &str) -> i64 {
+    part_algo2(input, |distance| distance)
+}
+
+fn part2_algo2(input: &str) -> i64 {
+    part_algo2(input, n_first_int_sum)
+}
+
+fn part_algo1<F>(input: &str, cost: F) -> i64
 where
     F: Fn(i64) -> i64,
 {
@@ -67,6 +108,30 @@ where
         .sum()
 }
 
+fn part_algo2<F>(input: &str, cost: F) -> i64
+where
+    F: Fn(i64) -> i64,
+{
+    let positions: Vec<i64> = input
+        .trim()
+        .split(',')
+        .map(|part| part.parse().unwrap())
+        .collect();
+
+    let leftest_pos = *positions.iter().min().unwrap();
+    let rightest_pos = *positions.iter().max().unwrap();
+
+    (leftest_pos..=rightest_pos)
+        .map(|selected| {
+            positions
+                .iter()
+                .map(|pos| cost((selected - pos).abs()))
+                .sum()
+        })
+        .min()
+        .unwrap()
+}
+
 /// Cf. https://fr.wikipedia.org/wiki/Somme_(arithm%C3%A9tique)#Somme_des_premiers_entiers
 fn n_first_int_sum(n: i64) -> i64 {
     (n * (n + 1)) / 2
@@ -81,13 +146,23 @@ mod day1_tests {
 ";
 
     #[test]
-    fn part1_example() {
-        assert_eq!(part1(EXAMPLE), 37);
+    fn part1_algo1_example() {
+        assert_eq!(part1_algo1(EXAMPLE), 37);
     }
 
     #[test]
-    fn part2_example() {
-        assert_eq!(part2(EXAMPLE), 168);
+    fn part2_algo1_example() {
+        assert_eq!(part2_algo1(EXAMPLE), 168);
+    }
+
+    #[test]
+    fn part1_algo2_example() {
+        assert_eq!(part1_algo2(EXAMPLE), 37);
+    }
+
+    #[test]
+    fn part2_algo2_example() {
+        assert_eq!(part2_algo2(EXAMPLE), 168);
     }
 
     #[test]
