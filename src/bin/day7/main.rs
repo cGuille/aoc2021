@@ -138,7 +138,7 @@ fn n_first_int_sum(n: i64) -> i64 {
 }
 
 #[cfg(test)]
-mod day1_tests {
+mod tests {
     use super::*;
 
     const EXAMPLE: &str = "\

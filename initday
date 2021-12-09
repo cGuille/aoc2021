@@ -33,7 +33,7 @@ fn part1(input: &str) -> i64 {
 }
 
 #[cfg(test)]
-mod day1_tests {
+mod tests {
     use super::*;
 
     const EXAMPLE: &str = "\

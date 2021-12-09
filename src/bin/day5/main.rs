@@ -174,7 +174,7 @@ impl FromStr for Point {
 }
 
 #[cfg(test)]
-mod day1_tests {
+mod tests {
     use super::*;
 
     const EXAMPLE: &str = "\

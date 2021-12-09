@@ -52,7 +52,7 @@ impl FromStr for Lanternfish {
 }
 
 #[cfg(test)]
-mod day1_tests {
+mod tests {
     use super::*;
 
     const EXAMPLE: &str = "\
