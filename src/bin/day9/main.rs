@@ -24,17 +24,23 @@ struct HeightMap {
 
 impl HeightMap {
     fn low_points(&self) -> Vec<u64> {
-        let map_width = self.column_count;
-
         self.cells
             .iter()
             .enumerate()
             .filter(|(index, measure)| {
                 [
-                    index.checked_sub(map_width),
-                    Some(index + 1),
-                    Some(index + map_width),
-                    index.checked_sub(1),
+                    index.checked_sub(self.column_count),
+                    if ((index + 1) % self.column_count) == 0 {
+                        None
+                    } else {
+                        Some(index + 1)
+                    },
+                    Some(index + self.column_count),
+                    if (index % self.column_count) == 0 {
+                        None
+                    } else {
+                        index.checked_sub(1)
+                    },
                 ]
                 .iter()
                 .filter_map(|index| *index)
