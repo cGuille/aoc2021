@@ -1,9 +1,10 @@
-use std::str::FromStr;
+use std::{collections::HashSet, str::FromStr};
 
 fn main() {
     let input = include_str!("input.txt");
 
     println!("{}", part1(input));
+    println!("{}", part2(input));
 }
 
 fn part1(input: &str) -> u64 {
@@ -12,8 +13,18 @@ fn part1(input: &str) -> u64 {
         .unwrap()
         .low_points()
         .iter()
-        .map(|measure| measure + 1)
+        .map(|(_, measure)| measure + 1)
         .sum()
+}
+
+fn part2(input: &str) -> usize {
+    let basins = input.parse::<HeightMap>().unwrap().basins();
+
+    let mut basin_sizes: Vec<_> = basins.into_iter().map(|basin| basin.len()).collect();
+
+    basin_sizes.sort_unstable();
+
+    basin_sizes.iter().rev().take(3).product()
 }
 
 #[derive(Debug)]
@@ -23,7 +34,7 @@ struct HeightMap {
 }
 
 impl HeightMap {
-    fn low_points(&self) -> Vec<u64> {
+    fn low_points(&self) -> Vec<(usize, u64)> {
         self.cells
             .iter()
             .enumerate()
@@ -47,8 +58,50 @@ impl HeightMap {
                 .filter_map(|index| self.cells.get(index))
                 .all(|adjacent_height| adjacent_height > measure)
             })
-            .map(|(_, measure)| *measure)
+            .map(|(index, measure)| (index, *measure))
             .collect()
+    }
+
+    fn basins(&self) -> Vec<Vec<(usize, u64)>> {
+        self.low_points()
+            .iter()
+            .map(|(index, _)| {
+                let mut visited = HashSet::new();
+                self.scan_basin(*index, &mut visited);
+                visited.into_iter().map(|i| (i, self.cells[i])).collect()
+            })
+            .collect()
+    }
+
+    fn scan_basin(&self, index: usize, visited: &mut HashSet<usize>) {
+        visited.insert(index);
+
+        let newly_visited: Vec<_> = [
+            index.checked_sub(self.column_count),
+            if ((index + 1) % self.column_count) == 0 {
+                None
+            } else {
+                Some(index + 1)
+            },
+            Some(index + self.column_count),
+            if (index % self.column_count) == 0 {
+                None
+            } else {
+                index.checked_sub(1)
+            },
+        ]
+        .iter()
+        .filter_map(|index| *index)
+        .filter(|adj_index| match self.cells.get(*adj_index) {
+            Some(measure) => *measure < 9,
+            None => false,
+        })
+        .filter(|adj_index| visited.insert(*adj_index))
+        .collect();
+
+        newly_visited
+            .iter()
+            .for_each(|new_index| self.scan_basin(*new_index, visited));
     }
 }
 
@@ -103,5 +156,10 @@ mod tests {
     #[test]
     fn part1_example() {
         assert_eq!(part1(EXAMPLE), 15);
+    }
+
+    #[test]
+    fn part2_example() {
+        assert_eq!(part2(EXAMPLE), 1134);
     }
 }
