@@ -4,29 +4,24 @@ use std::usize;
 fn main() {
     let input = include_str!("input.txt");
 
-    println!("{}", part1(input));
+    let (part1, part2) = simulate(input);
+
+    println!("{}", part1);
+    println!("{}", part2);
 }
 
-fn parse_grid(input: &str) -> Vec<usize> {
-    input
-        .trim()
-        .lines()
-        .map(|line| {
-            line.chars()
-                .map(|c| c.to_digit(10).unwrap().try_into().unwrap())
-                .collect::<Vec<_>>()
-        })
-        .flatten()
-        .collect()
-}
+fn simulate(input: &str) -> (usize, usize) {
+    let mut part1 = None;
+    let mut part2 = None;
 
-fn part1(input: &str) -> usize {
     let mut flashes = 0;
 
     let mut grid = parse_grid(input);
 
-    for _step in 1..=100 {
+    for step in 1.. {
         let mut flashing = Vec::new();
+
+        let flashes_before_step = flashes;
 
         for (index, energy) in grid.iter_mut().enumerate() {
             *energy += 1;
@@ -52,9 +47,21 @@ fn part1(input: &str) -> usize {
                 }
             }
         }
+
+        if step == 100 {
+            part1 = Some(flashes);
+        }
+
+        if (flashes - flashes_before_step) == 100 {
+            part2 = Some(step);
+        }
+
+        if let (Some(part1), Some(part2)) = (part1, part2) {
+            return (part1, part2);
+        }
     }
 
-    flashes
+    panic!("How did we get there??");
 }
 
 fn _grid_print<T: Display>(grid: &[T], grid_width: usize) {
@@ -126,6 +133,19 @@ fn grid_adj_indices(index: usize, grid_width: usize, grid_height: usize) -> Vec<
         .collect()
 }
 
+fn parse_grid(input: &str) -> Vec<usize> {
+    input
+        .trim()
+        .lines()
+        .map(|line| {
+            line.chars()
+                .map(|c| c.to_digit(10).unwrap().try_into().unwrap())
+                .collect::<Vec<_>>()
+        })
+        .flatten()
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -144,7 +164,7 @@ mod tests {
 ";
 
     #[test]
-    fn part1_example() {
-        assert_eq!(part1(EXAMPLE), 1656);
+    fn example() {
+        assert_eq!(simulate(EXAMPLE), (1656, 195));
     }
 }
