@@ -37,10 +37,18 @@ fn part2(input: &str) {
         dots = fold(dots, &f);
     }
 
+    // Rotate the result to improve display :)
+    let dots: HashSet<_> = dots
+        .into_iter()
+        .map(|dot| Dot { x: dot.y, y: dot.x })
+        .collect();
+
     let min_x = dots.iter().min_by_key(|dot| dot.x).unwrap().x;
     let min_y = dots.iter().min_by_key(|dot| dot.y).unwrap().y;
     let max_x = dots.iter().max_by_key(|dot| dot.x).unwrap().x;
     let max_y = dots.iter().max_by_key(|dot| dot.y).unwrap().y;
+
+    println!();
 
     for x in min_x..=max_x {
         for y in min_y..=max_y {
@@ -56,6 +64,8 @@ fn part2(input: &str) {
 
         println!();
     }
+
+    println!();
 }
 
 fn fold(dots: HashSet<Dot>, fold: &Fold) -> HashSet<Dot> {
