@@ -4,9 +4,11 @@ fn main() {
     let input = include_str!("input.txt");
 
     println!("{}", part1(input));
+
+    part2(input);
 }
 
-fn part1(input: &str) -> usize {
+fn parse(input: &str) -> (HashSet<Dot>, Vec<Fold>) {
     let mut lines = input.lines();
 
     let dots: HashSet<Dot> = lines
@@ -17,9 +19,43 @@ fn part1(input: &str) -> usize {
 
     let folds: Vec<Fold> = lines.map(|line| line.parse().unwrap()).collect();
 
+    (dots, folds)
+}
+
+fn part1(input: &str) -> usize {
+    let (dots, folds) = parse(input);
+
     let dots = fold(dots, folds.get(0).unwrap());
 
     dots.len()
+}
+
+fn part2(input: &str) {
+    let (mut dots, folds) = parse(input);
+
+    for f in folds {
+        dots = fold(dots, &f);
+    }
+
+    let min_x = dots.iter().min_by_key(|dot| dot.x).unwrap().x;
+    let min_y = dots.iter().min_by_key(|dot| dot.y).unwrap().y;
+    let max_x = dots.iter().max_by_key(|dot| dot.x).unwrap().x;
+    let max_y = dots.iter().max_by_key(|dot| dot.y).unwrap().y;
+
+    for x in min_x..=max_x {
+        for y in min_y..=max_y {
+            print!(
+                "{} ",
+                if dots.contains(&Dot { x, y }) {
+                    '#'
+                } else {
+                    ' '
+                }
+            );
+        }
+
+        println!();
+    }
 }
 
 fn fold(dots: HashSet<Dot>, fold: &Fold) -> HashSet<Dot> {
@@ -158,5 +194,10 @@ fold along x=5
     #[test]
     fn part1_example() {
         assert_eq!(part1(EXAMPLE), 17);
+    }
+
+    #[test]
+    fn part2_example() {
+        part2(EXAMPLE);
     }
 }
